@@ -1,0 +1,49 @@
+.labs {
+  color-scheme: dark;
+  --bg: #121214;
+  --panel: #1c1c20;
+  --line: #2e2e34;
+  --text: #e8e8ea;
+  --muted: #8d8d96;
+  --accent: #ff3366;
+  font: 14px/1.45 system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+.labs * { box-sizing: border-box; }
+.labs { min-height: 100vh; background: var(--bg); color: var(--text); }
+.labs .app { padding: 16px; max-width: 1800px; margin: 0 auto; }
+.labs header h1 { margin: 0; font-size: 18px; }
+.labs header p { margin: 2px 0 12px; }
+.labs .muted { color: var(--muted); }
+.labs .small { font-size: 12px; }
+.labs .error { color: #ff6b6b; margin-top: 6px; }
+
+.labs .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-bottom: 12px; }
+.labs fieldset { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.labs fieldset:disabled { opacity: 0.5; }
+.labs legend { padding: 0 4px; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+.labs label { display: flex; flex-direction: column; gap: 2px; }
+.labs label:has(> input[type='checkbox']) { flex-direction: row; align-items: center; gap: 6px; }
+.labs .row { display: flex; gap: 6px; flex-wrap: wrap; }
+.labs button, .labs select { background: #2a2a30; color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 5px 10px; font: inherit; cursor: pointer; }
+.labs button:disabled { cursor: default; opacity: 0.5; }
+.labs button.active { border-color: var(--accent); color: var(--accent); }
+.labs progress { width: 100%; }
+.labs .log { font: 12px/1.4 ui-monospace, Consolas, monospace; color: var(--muted); max-height: 90px; overflow: auto; }
+
+.labs .panes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 900px) { .labs .panes { grid-template-columns: 1fr; } }
+.labs .pane { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px; min-width: 0; }
+.labs .pane-head { margin-bottom: 6px; }
+.labs .pane-canvas { position: relative; width: 100%; }
+.labs .pane-canvas canvas { display: block; touch-action: none; cursor: crosshair; }
+.labs .pane-placeholder { position: absolute; inset: 0; display: grid; place-items: center; color: #fff; background: rgb(0 0 0 / 0.35); pointer-events: none; }
+.labs header.top { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.labs header.top p { margin-bottom: 0; }
+.labs input[type='color'] { width: 36px; height: 28px; padding: 0; border: 1px solid var(--line); border-radius: 6px; background: none; }
+.labs .layers { list-style: none; margin: 4px 0; padding: 0; display: flex; flex-direction: column; gap: 2px; max-height: 180px; overflow: auto; }
+.labs .layers li { display: flex; align-items: center; gap: 6px; padding: 3px 6px; border: 1px solid transparent; border-radius: 6px; cursor: pointer; }
+.labs .layers li:hover { background: #24242a; }
+.labs .layers li.selected { border-color: var(--accent); background: #2a1d24; }
+.labs .layers .layer-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.labs .layers button { padding: 1px 6px; font-size: 12px; }
+.labs .file-add input[type='file'] { margin-top: 4px; }
