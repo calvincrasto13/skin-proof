@@ -5,7 +5,7 @@ import { syntheticLimb } from '../ingest/syntheticLimb';
 import type { BlendMode, LayerInk } from '../render/compositor';
 import { useTryOn, type Layer, type TryOn } from '../studio/useTryOn';
 import {
-  ICompare, IDown, IDownload, IEye, IEyeOff, IFit, IImage, IInk, ILayers, ILock, IMove, IPlus, IRedo, ITrash, IUndo, IUp, IUpload, Logo,
+  ICompare, IDown, IDownload, IEye, IEyeOff, IFit, IImage, IInk, ILayers, ILock, IMove, IPaste, IPlus, IRedo, ITrash, IUndo, IUp, IUpload, Logo,
 } from './icons';
 import { DesignSearch } from './DesignSearch';
 
@@ -91,6 +91,34 @@ export function Studio({ incoming, onConsumed }: { incoming: IncomingPhoto; onCo
     return () => { window.removeEventListener('keydown', down); window.removeEventListener('keyup', up); };
   }, []);
 
+  // Paste: an image on the clipboard (a screenshot, or "Copy image" in a browser) becomes a tattoo. Text pastes pass through.
+  useEffect(() => {
+    const onPaste = (e: ClipboardEvent) => {
+      if (!rootRef.current?.offsetParent) return;
+      const images = clipboardImages(e.clipboardData?.files);
+      if (images.length === 0) return;
+      e.preventDefault();
+      addPasted(tRef.current, images);
+    };
+    window.addEventListener('paste', onPaste);
+    return () => window.removeEventListener('paste', onPaste);
+  }, []);
+
+  /** The Paste button, for when there's no keyboard (or the user doesn't know Ctrl+V). The browser may ask permission. */
+  const pasteFromClipboard = async () => {
+    try {
+      const files: File[] = [];
+      for (const item of await navigator.clipboard.read()) {
+        const type = item.types.find((ty) => ty.startsWith('image/'));
+        if (type) files.push(new File([await item.getType(type)], 'pasted image', { type }));
+      }
+      if (files.length === 0) t.setError('No image on the clipboard. Copy an image first, then paste.');
+      else addPasted(t, files);
+    } catch {
+      t.setError('The browser blocked reading the clipboard. Press Ctrl+V (Cmd+V on a Mac) instead.');
+    }
+  };
+
   const openPhoto = async (files: FileList | null) => {
     const f = files?.[0];
     if (!f || !f.type.startsWith('image/')) return;
@@ -142,10 +170,13 @@ export function Studio({ incoming, onConsumed }: { incoming: IncomingPhoto; onCo
             onDragLeave={() => setDragOver(null)}
             onDrop={(e) => { e.preventDefault(); setDragOver(null); void t.addFiles(e.dataTransfer.files); }}
           >
-            <IPlus /> Add tattoo files
+            <IPlus /> Add tattoo files<span className="dz-hint">or paste an image</span>
             <input type="file" accept="image/*" multiple className="sr-only" disabled={!t.photo}
               onChange={(e) => { if (e.target.files) void t.addFiles(e.target.files); e.target.value = ''; }} />
           </label>
+          <button type="button" className="btn btn-ghost" disabled={!t.photo} onClick={() => void pasteFromClipboard()}>
+            <IPaste /> Paste image
+          </button>
           {t.error && <p className="err" role="alert">{t.error}</p>}
           {t.layers.length > 0 ? (
             <ul className="layer-list">
@@ -415,3 +446,12 @@ function StatusHint({ t }: { t: TryOn }) {
   return <><span className="dot ok" />Wrapping to your body · drag to move</>;
 }
 
+/** Image files from a clipboard, renamed: browsers call every pasted image "image.png". */
+function clipboardImages(files: FileList | undefined): File[] {
+  return Array.from(files ?? []).filter((f) => f.type.startsWith('image/')).map((f) => new File([f], 'pasted image', { type: f.type }));
+}
+
+function addPasted(t: TryOn, files: File[]) {
+  if (!t.photo) { t.setError('Add a body photo first, then paste a design.'); return; }
+  void t.addFiles(files);
+}

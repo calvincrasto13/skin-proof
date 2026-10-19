@@ -22,6 +22,7 @@ export const IUndo = (p: { size?: number }) => <Icon {...p}><path d="M9 14L4 9l5
 export const IRedo = (p: { size?: number }) => <Icon {...p}><path d="M15 14l5-5-5-5" /><path d="M20 9H9a5 5 0 0 0 0 10h3" /></Icon>;
 export const ICompare = (p: { size?: number }) => <Icon {...p}><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M12 4v16" /></Icon>;
 export const IDownload = (p: { size?: number }) => <Icon {...p}><path d="M12 4v12" /><path d="M7 11l5 5 5-5" /><path d="M4 20h16" /></Icon>;
+export const IPaste = (p: { size?: number }) => <Icon {...p}><rect x="6" y="4" width="12" height="17" rx="2" /><path d="M9 4V3h6v1" /><path d="M9 10h6M9 14h4" /></Icon>;
 export const IPlus = (p: { size?: number }) => <Icon {...p}><path d="M12 5v14M5 12h14" /></Icon>;
 export const IEye = (p: { size?: number }) => <Icon {...p}><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></Icon>;
 export const IEyeOff = (p: { size?: number }) => <Icon {...p}><path d="M3 3l18 18" /><path d="M10.6 5.1A10 10 0 0 1 12 5c6 0 10 7 10 7a17 17 0 0 1-3.2 3.9M6.5 6.6A17 17 0 0 0 2 12s4 7 10 7a9.7 9.7 0 0 0 4.2-.9" /></Icon>;
