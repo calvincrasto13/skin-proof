@@ -7,6 +7,7 @@ import { useTryOn, type Layer, type TryOn } from '../studio/useTryOn';
 import {
   ICompare, IDown, IDownload, IEye, IEyeOff, IFit, IImage, IInk, ILayers, ILock, IMove, IPlus, IRedo, ITrash, IUndo, IUp, IUpload, Logo,
 } from './icons';
+import { PinterestSearch } from './PinterestSearch';
 
 export type IncomingPhoto = { bitmap: ImageBitmap; name: string } | 'sample' | null;
 
@@ -130,6 +131,7 @@ export function Studio({ incoming, onConsumed }: { incoming: IncomingPhoto; onCo
 
       <div className="st-body">
         <aside className="st-left" aria-label="Tattoos">
+          <PinterestSearch />
           <div className="section-head">
             <h2 className="panel-title">Tattoos</h2>
             <span className="note">{t.layers.length}</span>

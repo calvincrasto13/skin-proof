@@ -34,3 +34,4 @@ export const IInk = (p: { size?: number }) => <Icon {...p}><circle cx="12" cy="1
 export const IFit = (p: { size?: number }) => <Icon {...p}><path d="M4 8c5-4 11-4 16 0M4 16c5 4 11 4 16 0M4 8v8M20 8v8" /></Icon>;
 export const ILayers = (p: { size?: number }) => <Icon {...p}><path d="M12 3l9 5-9 5-9-5 9-5z" /><path d="M3 13l9 5 9-5" /></Icon>;
 export const IImage = (p: { size?: number }) => <Icon {...p}><rect x="3" y="4" width="18" height="16" rx="2" /><circle cx="9" cy="10" r="2" /><path d="M21 16l-5-5-9 9" /></Icon>;
+export const ISearch = (p: { size?: number }) => <Icon {...p}><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></Icon>;

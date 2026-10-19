@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import { ILock, IUpload, Logo } from './icons';
+import meshImg from './img/mesh.webp';
+import skinImg from './img/shoulder-after.webp';
+import stickerImg from './img/shoulder-sticker.webp';
 
 type Props = {
   onPhoto: (file: File) => void;
@@ -20,6 +23,7 @@ export function Landing({ onPhoto, onSample }: Props) {
         <a href="#top" className="wordmark"><Logo /><span>Skin Proof</span></a>
         <nav aria-label="Main">
           <a href="#how">How it works</a>
+          <a href="#studio">The studio</a>
           <a href="#photo-tips">Photo tips</a>
           <a href="#privacy">Privacy</a>
           <a href="#/studio" className="pill pill-ink">Open the studio</a>
@@ -81,6 +85,43 @@ export function Landing({ onPhoto, onSample }: Props) {
           </div>
         </section>
 
+        <section id="compare" className="wrap section split">
+          <div className="sec-head">
+            <h2 className="display">Sticker vs. skin</h2>
+            <p>Most mockups paste a flat PNG on a photo and it floats on top. Skin Proof shades the ink with your own light: at the bottom of the sun it darkens into the shadow, and the rays curve away with the shoulder.</p>
+          </div>
+          <div className="versus">
+            <figure>
+              <img src={stickerImg} width={720} height={680} loading="lazy" alt="A sun-and-moon design pasted flat on a shoulder: evenly grey, ignoring the light and the curve" />
+              <figcaption><strong>The usual way.</strong> Flat, evenly grey, ignores the light. Reads as a sticker.</figcaption>
+            </figure>
+            <figure>
+              <img src={skinImg} width={720} height={680} loading="lazy" alt="The same design wrapped around the shoulder, fading into the shadow" />
+              <figcaption><strong>Skin Proof.</strong> Wrapped to the body, shaded by it, with the skin's shine on top.</figcaption>
+            </figure>
+          </div>
+        </section>
+
+        <section id="studio" className="band">
+          <div className="wrap section split">
+            <div>
+              <h2 className="display">In the studio</h2>
+              <ul className="features">
+                <li><strong>As many designs as you like.</strong> Each one wraps around the limb on its own.</li>
+                <li><strong>Pick your ink.</strong> Black, blue-black, grey wash or any colour, from fresh to healed.</li>
+                <li><strong>Hold to compare</strong> (or press Space) to flash the original photo. Before and after, instantly.</li>
+                <li><strong>Save picture</strong> exports a full-resolution PNG to show your artist.</li>
+                <li><strong>Undo, redo, delete.</strong> One tattoo at a time, or wipe everything in one go.</li>
+                <li><strong>Works on your phone</strong>, with the controls in a bottom sheet.</li>
+              </ul>
+            </div>
+            <figure className="shot">
+              <img src={meshImg} width={720} height={680} loading="lazy" alt="Mesh editing: a grid of handles over a botanical sprig tattoo, one corner pulled up and out" />
+              <figcaption><strong>Didn't wrap quite right? Bend it.</strong> A 5×5 grid of handles lets you pull any spot into place; the rest bends smoothly around it.</figcaption>
+            </figure>
+          </div>
+        </section>
+
         <section id="photo-tips" className="wrap section split">
           <div>
             <h2 className="display">A photo that works</h2>
@@ -103,17 +144,33 @@ export function Landing({ onPhoto, onSample }: Props) {
             </div>
             <dl>
               <div><dt>On your device</dt><dd>The shape model runs on your graphics chip. Only its files are downloaded, once.</dd></div>
-              <div><dt>No account</dt><dd>No sign-up, no gallery, no history.</dd></div>
+              <div><dt>No account</dt><dd>No sign-up, no gallery, no history. Delete images wipes the lot on the spot.</dd></div>
               <div><dt>Close the tab, it's gone</dt><dd>Save the picture if you want it. Nothing else is kept.</dd></div>
               <div><dt>Check it yourself</dt><dd>Open your browser's network panel while you work: no photo leaves.</dd></div>
             </dl>
           </div>
         </section>
 
+        <section className="wrap section measured" aria-labelledby="measured-title">
+          <h2 id="measured-title" className="display">Measured, not guessed</h2>
+          <dl>
+            <div><dt>±0.03</dt><dd>Ink darkness and blue shift against real healed tattoos, per colour channel of skin brightness.</dd></div>
+            <div><dt>4%</dt><dd>How far the wrap lands from the true curve when tested against an exact cylinder.</dd></div>
+            <div><dt>Per photo</dt><dd>Edge softness and grain are measured from your photo, so fine lines don't come out too light.</dd></div>
+          </dl>
+        </section>
+
         <section className="wrap section limits">
           <div>
             <h2 className="display">Honest about the limits</h2>
-            <p>It's a preview from a single photo, not a scan. Designs that run right around a limb, existing tattoos under the new one, and very harsh light are where it's least accurate. Your artist still has the final say on size and placement.</p>
+            <p>It's a preview from one photo, not a 3D scan. It's least accurate when:</p>
+            <ul>
+              <li>a design runs right around a limb, past what the camera can see;</li>
+              <li>there's an existing tattoo under the new one;</li>
+              <li>the light is very harsh, or the background is busy;</li>
+              <li>the photo is taken at an angle.</li>
+            </ul>
+            <p>It can't show how skin stretches when you move. Your artist still has the final say on size and placement.</p>
           </div>
           <label className="pill pill-red" style={{ minHeight: 56, fontSize: 18 }}>
             Start a try-on
@@ -125,6 +182,7 @@ export function Landing({ onPhoto, onSample }: Props) {
       <footer className="l-foot">
         <div className="wrap">
           <span>Skin Proof · a preview, not a promise</span>
+          <span>Photos by <a href="https://unsplash.com/photos/-kFU_JB9Xhc" target="_blank" rel="noreferrer">Viktor Talashuk</a> and <a href="https://unsplash.com/photos/H4STV63ICrs" target="_blank" rel="noreferrer">Livia Rocha</a> on Unsplash</span>
           <a href="#/labs">Engineering labs</a>
         </div>
       </footer>
