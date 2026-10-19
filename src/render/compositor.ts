@@ -442,6 +442,22 @@ export class Compositor {
     this.disposePhoto();
     for (const id of [...this.layers.keys()]) this.removeLayer(id);
   }
+
+  /**
+   * Drop every image this compositor holds and blank the canvas, so no pixel of the photo or a
+   * design is left on screen or in GPU memory. The context stays usable for the next photo.
+   */
+  clearAll() {
+    this.dispose();
+    this.imgW = this.imgH = 0;
+    this.noiseSigma = 0;
+    this.edgeSigma = NaN;
+    const gl = this.gl;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+    gl.clearColor(0, 0, 0, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+  }
 }
 
 /** sRGB hex → linear RGB, with saturation applied around linear luminance. */

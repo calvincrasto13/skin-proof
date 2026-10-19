@@ -122,7 +122,7 @@ kbd { font-family: var(--mono); font-size: 11px; padding: 2px 6px; border: 1px s
 
 .st-body { flex: 1 1 auto; min-height: 0; display: flex; }
 .st-left, .st-right { overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 20px; }
-.st-left { flex: 0 0 280px; border-right: 1px solid var(--st-line); }
+.st-left { flex: 0 0 300px; border-right: 1px solid var(--st-line); }
 .st-right { flex: 0 0 320px; border-left: 1px solid var(--st-line); }
 .st-stage { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; background: var(--st-stage); }
 .st-canvas { flex: 1 1 auto; min-height: 0; position: relative; }
@@ -156,16 +156,20 @@ kbd { font-family: var(--mono); font-size: 11px; padding: 2px 6px; border: 1px s
 .layer:hover { background: #1e1b15; }
 .layer.selected { background: var(--st-sel); border-color: var(--st-red); }
 .layer .pick { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 0; background: none; border: 0; text-align: left; cursor: pointer; min-height: 44px; }
-.layer .thumb { width: 44px; height: 44px; flex: none; border-radius: 8px; background: var(--paper); object-fit: contain; }
+.layer .thumb { width: 40px; height: 40px; flex: none; border-radius: 8px; background: var(--paper); object-fit: contain; }
 .layer .meta { min-width: 0; display: flex; flex-direction: column; }
 .layer .name { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .layer.selected .name { font-weight: 600; }
-.layer .sub { font-size: 12px; color: var(--st-muted); }
-.layer .tools { display: flex; gap: 2px; }
-.layer .tools button { width: 32px; height: 32px; display: grid; place-items: center; background: transparent; border: 0; border-radius: 8px; cursor: pointer; color: var(--st-text-2); }
+.layer .sub { font-size: 12px; color: var(--st-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.layer .tools { display: flex; gap: 0; flex: none; }
+.layer .tools button { width: 30px; height: 36px; display: grid; place-items: center; background: transparent; border: 0; border-radius: 8px; cursor: pointer; color: var(--st-text-2); }
 .layer .tools button:hover:not(:disabled) { background: #2a261e; color: var(--st-text); }
 .layer .tools button:disabled { opacity: 0.35; cursor: default; }
 .layer.hidden .thumb, .layer.hidden .name { opacity: 0.45; }
+@media (hover: hover) {
+  .layer .tools .reorder { display: none; }
+  .layer:hover .tools .reorder, .layer:focus-within .tools .reorder, .layer.selected .tools .reorder { display: grid; }
+}
 
 .field { display: flex; flex-direction: column; gap: 6px; }
 .field .top { display: flex; justify-content: space-between; gap: 8px; }
@@ -206,3 +210,14 @@ kbd { font-family: var(--mono); font-size: 11px; padding: 2px 6px; border: 1px s
   .st-tabs button { min-height: 52px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; background: transparent; border: 0; border-radius: 12px; color: var(--st-text-2); font-size: 12px; cursor: pointer; }
   .st-tabs button[aria-pressed='true'] { background: var(--st-sel); color: var(--st-text); }
 }
+
+/* Confirmation dialog (native <dialog>: focus trap, Esc and backdrop for free) */
+.confirm { width: min(440px, calc(100vw - 32px)); padding: 0; border: 1px solid var(--st-line); border-radius: 16px; background: var(--st-panel); color: var(--st-text); font-family: var(--sans); font-size: 15px; line-height: 1.5; }
+.confirm::backdrop { background: rgb(10 9 6 / 0.65); }
+.confirm form { margin: 0; padding: 24px; display: flex; flex-direction: column; gap: 12px; }
+.confirm h2 { margin: 0; font-family: var(--display); font-weight: 800; font-size: 32px; line-height: 1; text-transform: uppercase; }
+.confirm p { margin: 0; color: var(--st-text-2); }
+.confirm .note { font-size: 13px; color: var(--st-muted); }
+.confirm .actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 8px; }
+.confirm .btn { font: inherit; color: inherit; }
+.confirm .btn-red { color: #fff; }

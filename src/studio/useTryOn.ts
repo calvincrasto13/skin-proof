@@ -196,24 +196,35 @@ export function useTryOn() {
   }, [addLayer]);
 
   // ---------- photo + depth ----------
+  /** Bumped on every new photo and on delete-all, so a depth run that finishes late is ignored. */
+  const photoGen = useRef(0);
+  const photoRef = useRef<ImageBitmap | null>(null);
+
   const runDepth = useCallback(async (bitmap: ImageBitmap) => {
+    const gen = photoGen.current;
+    const current = () => gen === photoGen.current;
     setDepthState({ stage: 'working', label: 'Getting ready' });
     try {
       const r = await depthClient.current.run(bitmap, 'auto', (e) => {
+        if (!current()) return;
         if (e.type === 'download') setDepthState({ stage: 'downloading', loaded: e.loaded, total: e.total });
         else if (e.stage === 'inferring') setDepthState({ stage: 'working', label: 'Reading the shape of your body' });
         else if (e.stage === 'downloading') setDepthState({ stage: 'downloading', loaded: 0, total: 0 });
       });
+      if (!current()) return;
       setDepth(r);
       setDepthState({ stage: 'done', ms: r.inferMs, device: r.device });
     } catch (e) {
-      setDepthState({ stage: 'error', message: e instanceof Error ? e.message : String(e) });
+      if (current()) setDepthState({ stage: 'error', message: e instanceof Error ? e.message : String(e) });
     }
   }, []);
 
   const loadPhoto = useCallback((bitmap: ImageBitmap, name: string) => {
     const c = comp.current;
     if (!c) return;
+    photoGen.current++;
+    if (photoRef.current && photoRef.current !== bitmap) photoRef.current.close();
+    photoRef.current = bitmap;
     c.setPhoto(bitmap);
     setPhoto(bitmap);
     setPhotoName(name);
@@ -463,6 +474,36 @@ export function useTryOn() {
   /** Back to the pure auto-fit for one layer. */
   const resetMesh = useCallback((id: string) => updateLayer(id, { lattice: null }), [updateLayer]);
 
+  /**
+   * Delete every image from this session: the body photo, all designs, their thumbnails, the depth
+   * map and the undo history (which would otherwise still hold the designs). GPU copies are freed
+   * and both canvases blanked. Not undoable, by design.
+   */
+  const clearAll = useCallback(() => {
+    photoGen.current++;
+    comp.current?.clearAll();
+    const ov = overlayRef.current;
+    ov?.getContext('2d')?.clearRect(0, 0, ov.width, ov.height);
+    photoRef.current?.close();
+    photoRef.current = null;
+    uploaded.current.clear();
+    fitCache.current.clear();
+    hist.current = { past: [], future: [], lastKey: '', lastAt: 0 };
+    drag.current = null;
+    setPhoto(null);
+    setPhotoName('');
+    setDepth(null);
+    setDepthState({ stage: 'idle' });
+    setLayers([]);
+    setSelectedId(null);
+    setEditMesh(false);
+    setComparing(false);
+    setZoomState(1);
+    setFocus(undefined);
+    setError(null);
+    setHistVersion((v) => v + 1);
+  }, []);
+
   const setZoom = useCallback((z: number) => {
     const clamped = Math.min(8, Math.max(1, z));
     if (clamped > 1 && zoom <= 1) {
@@ -494,7 +535,7 @@ export function useTryOn() {
     undo, redo, canUndo: hist.current.past.length > 0, canRedo: hist.current.future.length > 0,
     ink, setInk, mode, setMode, smoothSigma, setSmoothSigma,
     comparing, setComparing, showMesh, setShowMesh,
-    editMesh, setEditMesh, resetMesh,
+    editMesh, setEditMesh, resetMesh, clearAll,
     hasCorrections: (l: Layer | null) => !!l && !isIdentity(l.lattice),
     zoom, setZoom,
     pointerDown, pointerMove, pointerUp,

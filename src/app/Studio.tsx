@@ -25,6 +25,7 @@ export function Studio({ incoming, onConsumed }: { incoming: IncomingPhoto; onCo
   const t = useTryOn();
   const [tab, setTab] = useState<Tab>('place');
   const [dragOver, setDragOver] = useState<'photo' | 'designs' | null>(null);
+  const deleteDialog = useRef<HTMLDialogElement>(null);
 
   // A photo handed over from the landing page, or the sample arm.
   useEffect(() => {
@@ -103,6 +104,11 @@ export function Studio({ incoming, onConsumed }: { incoming: IncomingPhoto; onCo
       <header className="st-top">
         <a href="#/" className="wordmark" aria-label="Skin Proof home"><Logo size={24} accent="#E0553A" /><span>Skin Proof</span></a>
         {t.photo && <DepthChip t={t} />}
+        {(t.photo || t.layers.length > 0) && (
+          <button type="button" className="btn btn-ghost" onClick={() => deleteDialog.current?.showModal()}>
+            <ITrash /><span className="compare-label">Delete images</span>
+          </button>
+        )}
         <div className="grow" />
         <div role="group" aria-label="History" style={{ display: 'flex', gap: 4 }}>
           <button type="button" className="btn btn-ghost btn-icon" aria-label="Undo" title="Undo (Ctrl+Z)" disabled={!t.canUndo} onClick={t.undo}><IUndo /></button>
@@ -303,6 +309,23 @@ export function Studio({ incoming, onConsumed }: { incoming: IncomingPhoto; onCo
         </aside>
       </div>
 
+      <dialog ref={deleteDialog} className="confirm" aria-labelledby="del-title" onClick={(e) => { if (e.target === e.currentTarget) e.currentTarget.close(); }}>
+        <form method="dialog">
+          <h2 id="del-title">Delete all images?</h2>
+          <p>
+            This removes your body photo{t.layers.length ? ` and ${t.layers.length === 1 ? 'your tattoo design' : `all ${t.layers.length} tattoo designs`}` : ''} from
+            this page, along with the undo history. It can't be undone.
+          </p>
+          <p className="note">Nothing was ever uploaded, so there is no copy anywhere else. Pictures you saved stay in your downloads.</p>
+          <div className="actions">
+            <button type="submit" className="btn" autoFocus>Cancel</button>
+            <button type="button" className="btn btn-red" onClick={() => { t.clearAll(); deleteDialog.current?.close(); setTab('place'); }}>
+              <ITrash /> Delete everything
+            </button>
+          </div>
+        </form>
+      </dialog>
+
       <nav className="st-tabs" aria-label="Tools">
         <TabBtn tab="place" cur={tab} set={setTab} icon={<IMove />} label="Place" />
         <TabBtn tab="ink" cur={tab} set={setTab} icon={<IInk />} label="Ink" />
@@ -329,10 +352,13 @@ function LayerRow({ t, layer: l, isTop, isBottom, onPick }: { t: TryOn; layer: L
         </span>
       </button>
       <span className="tools">
-        <button type="button" aria-label={`Bring ${l.name} forward`} disabled={isTop} onClick={() => t.moveLayer(l.id, 1)}><IUp size={16} /></button>
-        <button type="button" aria-label={`Send ${l.name} backward`} disabled={isBottom} onClick={() => t.moveLayer(l.id, -1)}><IDown size={16} /></button>
+        <button type="button" className="reorder" aria-label={`Bring ${l.name} forward`} disabled={isTop} onClick={() => t.moveLayer(l.id, 1)}><IUp size={16} /></button>
+        <button type="button" className="reorder" aria-label={`Send ${l.name} backward`} disabled={isBottom} onClick={() => t.moveLayer(l.id, -1)}><IDown size={16} /></button>
         <button type="button" aria-label={l.visible ? `Hide ${l.name}` : `Show ${l.name}`} onClick={() => t.updateLayer(l.id, { visible: !l.visible })}>
           {l.visible ? <IEye size={16} /> : <IEyeOff size={16} />}
+        </button>
+        <button type="button" aria-label={`Delete ${l.name}`} title="Delete (Ctrl+Z brings it back)" onClick={() => t.removeLayer(l.id)}>
+          <ITrash size={16} />
         </button>
       </span>
     </li>
