@@ -1,0 +1,11 @@
+// Cloudflare deployment: the built app served as static assets (no server code).
+// public/_headers (copied into dist) sets cross-origin isolation and caching.
+// Deploy with: npm run deploy
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "skin-proof",
+  "compatibility_date": "2026-10-12",
+  "assets": {
+    "directory": "./dist"
+  }
+}

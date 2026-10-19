@@ -8,7 +8,8 @@
     "build": "tsc --noEmit && vite build",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "screenshots": "node scripts/screenshots.mjs"
+    "screenshots": "node scripts/screenshots.mjs",
+    "deploy": "npm run build && npx --yes wrangler@4.151.1 deploy"
   },
   "dependencies": {
     "@huggingface/transformers": "^4.3.1",

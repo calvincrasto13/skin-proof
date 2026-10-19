@@ -153,7 +153,7 @@ export function WarpLab() {
     if (layers.length === 0) addLayer('sample line art', testDesign('lineart'), bitmap);
   };
 
-  // Dev only: ?photo=/dev/<file> from the gitignored public/dev folder.
+  // Dev only: ?photo=/dev/<file> from the gitignored dev/ folder (served by the dev server, never built).
   useEffect(() => {
     if (!import.meta.env.DEV) return;
     const url = new URLSearchParams(location.search).get('photo');

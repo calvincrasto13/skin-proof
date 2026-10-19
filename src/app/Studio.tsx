@@ -42,7 +42,7 @@ export function Studio({ incoming, onConsumed }: { incoming: IncomingPhoto; onCo
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [incoming]);
 
-  // Dev only: ?photo=/dev/<file> loads a test photo from the gitignored public/dev folder, or
+  // Dev only: ?photo=/dev/<file> loads a test photo from the gitignored dev/ folder (served by the dev server, never built), or
   // /docs/stock/<file> one of the committed stock photos; &nosample skips the sample tattoo.
   useEffect(() => {
     if (!import.meta.env.DEV) return;

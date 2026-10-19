@@ -12,6 +12,8 @@ and sinks into your skin — all inside your browser. Your photo never goes anyw
 ![Accounts](https://img.shields.io/badge/accounts-none-15130f?style=flat-square)
 ![WebGPU](https://img.shields.io/badge/depth-WebGPU%20%7C%20WASM-6b655a?style=flat-square)
 
+### **[▶ Try it live: skin-proof.tattoo-viz.workers.dev](https://skin-proof.tattoo-viz.workers.dev)**
+
 <img src="docs/screens/landing.png" alt="The Skin Proof landing page: 'See it on your skin first', with buttons to choose a body photo or try a sample arm" width="900">
 
 </div>
@@ -113,7 +115,12 @@ npm install
 npm run dev          # http://localhost:5173
 npm test             # geometry, lattice, noise and sharpness tests
 npm run screenshots  # regenerate the images in this README (needs Chrome or Edge)
+npm run deploy       # build and publish to Cloudflare (needs `npx wrangler login` once)
 ```
+
+It's a static site: `npm run build` produces `dist/`, and `public/_headers` turns on cross-origin
+isolation in production so the WebAssembly fallback can use threads. Any host that can set those two
+headers works; this one runs on Cloudflare Workers static assets (`wrangler.jsonc`).
 
 The engineering labs from the prototype (depth map viewer, compositing test bench, warp lab) live
 at `/#/labs`.

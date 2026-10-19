@@ -58,7 +58,7 @@ export function CompositeLab() {
     setHasPhoto(true);
   };
 
-  // Dev only: ?photo=/dev/<file> loads a photo from the gitignored public/dev folder, so a test
+  // Dev only: ?photo=/dev/<file> loads a photo from the gitignored dev/ folder (served by the dev server, never built), so a test
   // photo can be driven without the file picker. Served from localhost; never in a build.
   useEffect(() => {
     if (!import.meta.env.DEV) return;
