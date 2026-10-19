@@ -42,16 +42,18 @@ export function Studio({ incoming, onConsumed }: { incoming: IncomingPhoto; onCo
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [incoming]);
 
-  // Dev only: ?photo=/dev/<file> loads a test photo from the gitignored public/dev folder.
+  // Dev only: ?photo=/dev/<file> loads a test photo from the gitignored public/dev folder, or
+  // /docs/stock/<file> one of the committed stock photos; &nosample skips the sample tattoo.
   useEffect(() => {
     if (!import.meta.env.DEV) return;
-    const url = new URLSearchParams(location.search).get('photo');
-    if (!url || !url.startsWith('/dev/')) return;
+    const params = new URLSearchParams(location.search);
+    const url = params.get('photo');
+    if (!url || !(url.startsWith('/dev/') || url.startsWith('/docs/stock/'))) return;
     let cancelled = false;
     fetch(url).then((r) => r.blob()).then(loadPhoto).then(({ bitmap }) => {
       if (cancelled) return;
       t.loadPhoto(bitmap, url.split('/').pop() ?? 'photo');
-      t.addLayer('memento (sample)', testDesign('lineart'), bitmap);
+      if (!params.has('nosample')) t.addLayer('memento (sample)', testDesign('lineart'), bitmap);
     }).catch((e) => t.setError(String(e)));
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -121,8 +123,8 @@ export function Studio({ incoming, onConsumed }: { incoming: IncomingPhoto; onCo
         >
           <ICompare /><span className="compare-label">Hold to compare</span><kbd>Space</kbd>
         </button>
-        <button type="button" className="btn btn-red" disabled={!t.photo || t.layers.length === 0} onClick={() => void t.exportPng()}>
-          <IDownload /><span>Save picture</span>
+        <button type="button" className="btn btn-red" aria-label="Save picture" disabled={!t.photo || t.layers.length === 0} onClick={() => void t.exportPng()}>
+          <IDownload /><span className="save-label" aria-hidden="true">Save picture</span>
         </button>
       </header>
 

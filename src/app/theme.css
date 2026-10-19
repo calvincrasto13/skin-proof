@@ -196,7 +196,8 @@ kbd { font-family: var(--mono); font-size: 11px; padding: 2px 6px; border: 1px s
 /* Phone: photo on top, one panel at a time in a bottom sheet, tabs at the bottom. */
 @media (max-width: 760px) {
   .st-top { padding: 8px 12px; gap: 8px; }
-  .st-top .wordmark span, .st-top .chip, .st-top .compare-label, .st-top kbd { display: none; }
+  .st-top .wordmark span, .st-top .chip, .st-top .compare-label, .st-top kbd, .st-top .save-label { display: none; }
+  .st-top .btn { padding: 0 12px; }
   .st-body { flex-direction: column; }
   .st-stage { flex: 0 0 52dvh; order: 0; }
   .st-status .hint { display: none; }

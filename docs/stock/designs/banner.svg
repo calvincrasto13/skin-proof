@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300" width="800" height="300">
+  <rect width="800" height="300" fill="#fff"/>
+  <g fill="none" stroke="#111" stroke-width="6" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M110 110 Q 400 40 690 110 L 690 200 Q 400 130 110 200 Z"/>
+    <path d="M110 125 L 40 140 L 75 175 L 40 215 L 110 200"/>
+    <path d="M690 125 L 760 140 L 725 175 L 760 215 L 690 200"/>
+    <path d="M110 125 L 110 200 M690 125 L 690 200" stroke-width="3"/>
+  </g>
+  <text x="400" y="178" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-weight="700" font-size="84" fill="#111">Fortune</text>
+</svg>

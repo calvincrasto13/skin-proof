@@ -297,10 +297,6 @@ export function useTryOn() {
   const inkSignature = layers.map((l) => `${l.id}:${l.visible}:${l.ink.color}:${l.ink.opacity}:${l.ink.saturation}`).join('|');
   useEffect(() => { comp.current?.invalidateInk(); }, [inkSignature, ink.blur, ink.scatter]);
 
-  // Dev: inspect the live layers and fits from the console.
-  useEffect(() => {
-    if (import.meta.env.DEV) (window as unknown as Record<string, unknown>).__tryon = { layers, fits, selectedId, zoom, focus };
-  }, [layers, fits, selectedId, zoom, focus]);
 
   // ---------- render ----------
   const source = useMemo(
@@ -384,10 +380,12 @@ export function useTryOn() {
       g.globalAlpha = 1;
       return;
     }
-    g.fillStyle = '#e0553a';
+    // The anchor as a small ring, so the design under it stays readable.
+    g.strokeStyle = '#e0553a';
+    g.lineWidth = 2 * px;
     g.beginPath();
     g.arc(selected.anchor.x, selected.anchor.y, 5 * px, 0, Math.PI * 2);
-    g.fill();
+    g.stroke();
   }
 
   // ---------- interaction ----------
@@ -525,6 +523,15 @@ export function useTryOn() {
     setTimeout(() => URL.revokeObjectURL(url), 5000);
     setSize((s) => ({ ...s })); // repaint the view the export replaced
   }, [photo, photoName, source, ink, mode]);
+
+  // Dev only: inspect and drive the engine from the console (and the README screenshot script).
+  useEffect(() => {
+    if (!import.meta.env.DEV) return;
+    (window as unknown as Record<string, unknown>).__tryon = {
+      layers, fits, selectedId, zoom, focus, baseSurface, depthState,
+      updateLayer, removeLayer, setSelectedId, setEditMesh, setShowMesh, setComparing, setZoom, patchLayer,
+    };
+  });
 
   return {
     canvasRef, overlayRef, stageRef,
