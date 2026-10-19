@@ -21,6 +21,8 @@ export type Layer = {
   /** Small preview of the keyed design, for the layer list. */
   thumb: string;
   visible: boolean;
+  /** Pinned in place: the canvas can't select, drag or reshape it, and it gets no outline. */
+  locked: boolean;
   anchor: Pt;
   /** Design width measured on the skin, image px. */
   width: number;
@@ -153,7 +155,7 @@ export function useTryOn() {
     setLayers((ls) => {
       const step = (ls.length % 6) * 0.04 * L;
       return [...ls, {
-        id, name, design, thumb: densityThumb(design), visible: true,
+        id, name, design, thumb: densityThumb(design), visible: true, locked: false,
         anchor: { x: W / 2 + step, y: H / 2 + step },
         width: Math.round(L * 0.2),
         rotation: 0, warp: true, autoK: true, manualK: 0.5, lattice: null,
@@ -326,7 +328,7 @@ export function useTryOn() {
     const g = cv.getContext('2d')!;
     g.clearRect(0, 0, cv.width, cv.height);
     const fit = selectedId ? fits.get(selectedId) : undefined;
-    if (!fit || !selected || comparing || !selected.visible) return;
+    if (!fit || !selected || comparing || !selected.visible || selected.locked) return;
     const v = c.view(size.w, size.h, zoom, focus);
     g.setTransform(dpr * v.scale, 0, 0, dpr * v.scale, dpr * v.ox, dpr * v.oy);
     const px = 1 / v.scale;
@@ -395,11 +397,11 @@ export function useTryOn() {
     return { x: (clientX - r.left - v.ox) / v.scale, y: (clientY - r.top - v.oy) / v.scale };
   }, [zoom, focus]);
 
-  /** Topmost visible layer whose laid-out mesh covers p. */
+  /** Topmost visible, unlocked layer whose laid-out mesh covers p. Clicks pass through locked ones. */
   const pick = useCallback((p: Pt): string | null => {
     for (let i = layers.length - 1; i >= 0; i--) {
       const l = layers[i], fit = fits.get(l.id);
-      if (l.visible && fit && meshContains(fit.layout, p)) return l.id;
+      if (l.visible && !l.locked && fit && meshContains(fit.layout, p)) return l.id;
     }
     return null;
   }, [layers, fits]);
@@ -411,7 +413,7 @@ export function useTryOn() {
 
   /** Control handle of the selected layer under p, within a finger-sized radius. */
   const pickHandle = useCallback((p: Pt): { a: number; b: number } | null => {
-    if (!editMesh || !selectedId) return null;
+    if (!editMesh || !selectedId || layersRef.current.find((l) => l.id === selectedId)?.locked) return null;
     const fit = fits.get(selectedId);
     const r = canvasRef.current?.getBoundingClientRect();
     if (!fit || !r || !comp.current) return null;
@@ -441,7 +443,7 @@ export function useTryOn() {
     const hit = pick(p);
     const id = hit ?? selectedId;
     const l = layersRef.current.find((x) => x.id === id);
-    if (!l) return;
+    if (!l || l.locked) return;
     setSelectedId(l.id);
     checkpoint(); // one undo step per drag
     // Grabbing a tattoo keeps the grab point; tapping empty skin moves the selected one there.

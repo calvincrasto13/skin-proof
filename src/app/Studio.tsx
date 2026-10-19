@@ -5,7 +5,7 @@ import { syntheticLimb } from '../ingest/syntheticLimb';
 import type { BlendMode, LayerInk } from '../render/compositor';
 import { useTryOn, type Layer, type TryOn } from '../studio/useTryOn';
 import {
-  ICompare, IDown, IDownload, IEye, IEyeOff, IFit, IImage, IInk, ILayers, ILock, IMove, IPaste, IPlus, IRedo, ITrash, IUndo, IUp, IUpload, Logo,
+  ICompare, IDown, IDownload, IEye, IEyeOff, IFit, IImage, IInk, ILayers, ILock, IMove, IPaste, IPlus, IRedo, ITrash, IUndo, IUnlock, IUp, IUpload, Logo,
 } from './icons';
 import { DesignSearch } from './DesignSearch';
 
@@ -243,18 +243,27 @@ export function Studio({ incoming, onConsumed }: { incoming: IncomingPhoto; onCo
             <>
               <div className="section-head">
                 <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{sel.name}</h2>
-                <button type="button" className="btn btn-ghost btn-icon" aria-label={`Delete ${sel.name}`} onClick={() => t.removeLayer(sel.id)}><ITrash /></button>
+                <span style={{ display: 'flex', gap: 4 }}>
+                  <LockButton t={t} layer={sel} className="btn btn-ghost btn-icon lock-btn" />
+                  <button type="button" className="btn btn-ghost btn-icon" aria-label={`Delete ${sel.name}`} onClick={() => t.removeLayer(sel.id)}><ITrash /></button>
+                </span>
               </div>
 
-              <section className="group" data-section="place">
+              {sel.locked && (
+                <p className="locked-note" data-section="place">
+                  <ILock size={14} /> Locked in place. Unlock it to move, resize or reshape it.
+                </p>
+              )}
+
+              {!sel.locked && <section className="group" data-section="place">
                 <h3 className="panel-title">Placement</h3>
                 <Range label="Size" value={sel.width} min={20} max={Math.round(L * 1.2)} step={1} display={`${Math.round((sel.width / L) * 100)}% of photo`}
                   onChange={(v) => t.updateLayer(sel.id, { width: v }, `size:${sel.id}`)} />
                 <Range label="Rotation" value={sel.rotation} min={-180} max={180} step={1} display={`${sel.rotation}°`}
                   onChange={(v) => t.updateLayer(sel.id, { rotation: v }, `rot:${sel.id}`)} />
-              </section>
+              </section>}
 
-              <section className="group" data-section="fit">
+              {!sel.locked && <section className="group" data-section="fit">
                 <h3 className="panel-title">Fit to body</h3>
                 <label className="toggle">
                   <span>Follow the body's curve<small>Off shows it flat, like a sticker</small></span>
@@ -280,7 +289,7 @@ export function Studio({ incoming, onConsumed }: { incoming: IncomingPhoto; onCo
                     Reset to the automatic fit
                   </button>
                 )}
-              </section>
+              </section>}
 
               <section className="group" data-section="ink">
                 <h3 className="panel-title">Ink</h3>
@@ -375,20 +384,35 @@ function TabBtn({ tab, cur, set, icon, label }: { tab: Tab; cur: Tab; set: (t: T
   return <button type="button" aria-pressed={cur === tab} onClick={() => set(tab)}>{icon}{label}</button>;
 }
 
+/** Pins a tattoo where it is. Locking also leaves hand-adjust mode, whose handles would otherwise stay on screen. */
+function LockButton({ t, layer: l, className }: { t: TryOn; layer: Layer; className?: string }) {
+  const toggle = () => {
+    if (!l.locked && l.id === t.selectedId) t.setEditMesh(false);
+    t.updateLayer(l.id, { locked: !l.locked });
+  };
+  return (
+    <button type="button" className={className} aria-pressed={l.locked} aria-label={l.locked ? `Unlock ${l.name}` : `Lock ${l.name} in place`}
+      title={l.locked ? 'Unlock' : 'Lock in place'} onClick={toggle}>
+      {l.locked ? <ILock size={16} /> : <IUnlock size={16} />}
+    </button>
+  );
+}
+
 function LayerRow({ t, layer: l, isTop, isBottom, onPick }: { t: TryOn; layer: Layer; isTop: boolean; isBottom: boolean; onPick: () => void }) {
   const selected = l.id === t.selectedId;
   return (
-    <li className={`layer${selected ? ' selected' : ''}${l.visible ? '' : ' hidden'}`}>
+    <li className={`layer${selected ? ' selected' : ''}${l.visible ? '' : ' hidden'}${l.locked ? ' locked' : ''}`}>
       <button type="button" className="pick" aria-pressed={selected} onClick={onPick}>
         <img className="thumb" src={l.thumb} alt="" />
         <span className="meta">
           <span className="name" title={l.name}>{l.name}</span>
-          <span className="sub">{l.visible ? `${inkName(l.ink)} · ${Math.round(l.ink.opacity * 100)}%${t.hasCorrections(l) ? ' · adjusted' : ''}` : 'Hidden'}</span>
+          <span className="sub">{l.visible ? `${l.locked ? 'Locked · ' : ''}${inkName(l.ink)} · ${Math.round(l.ink.opacity * 100)}%${t.hasCorrections(l) ? ' · adjusted' : ''}` : 'Hidden'}</span>
         </span>
       </button>
       <span className="tools">
         <button type="button" className="reorder" aria-label={`Bring ${l.name} forward`} disabled={isTop} onClick={() => t.moveLayer(l.id, 1)}><IUp size={16} /></button>
         <button type="button" className="reorder" aria-label={`Send ${l.name} backward`} disabled={isBottom} onClick={() => t.moveLayer(l.id, -1)}><IDown size={16} /></button>
+        <LockButton t={t} layer={l} />
         <button type="button" aria-label={l.visible ? `Hide ${l.name}` : `Show ${l.name}`} onClick={() => t.updateLayer(l.id, { visible: !l.visible })}>
           {l.visible ? <IEye size={16} /> : <IEyeOff size={16} />}
         </button>
@@ -439,6 +463,7 @@ function StatusHint({ t }: { t: TryOn }) {
   if (t.depthState.stage === 'error') return <><span className="dot" />Couldn't read the body shape: {t.depthState.message}</>;
   if (!t.layers.length) return <><span className="dot" />Add a tattoo file to start</>;
   if (!t.selected) return <><span className="dot ok" />Click a tattoo to select it</>;
+  if (t.selected.locked) return <><span className="dot ok" />Locked in place · unlock it in the list to move it</>;
   if (t.editMesh) return <><span className="dot busy" />Drag the dots to correct the fit · Esc when done</>;
   const fit = t.fits.get(t.selected.id);
   if (!t.selected.warp) return <><span className="dot" />Flat, like a sticker · drag to move</>;
