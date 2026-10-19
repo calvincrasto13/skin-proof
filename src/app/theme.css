@@ -168,6 +168,8 @@ kbd { font-family: var(--mono); font-size: 11px; padding: 2px 6px; border: 1px s
 .layer .tools button:disabled { opacity: 0.35; cursor: default; }
 .layer.hidden .thumb, .layer.hidden .name { opacity: 0.45; }
 .layer .tools button[aria-pressed="true"], .lock-btn[aria-pressed="true"] { color: var(--st-red); }
+.flip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.flip-row .btn { flex: 1 1 0; justify-content: center; white-space: nowrap; }
 .locked-note { margin: 0; display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--st-text-2); }
 @media (hover: hover) {
   .layer .tools .reorder, .layer .tools [aria-pressed="false"] { display: none; }

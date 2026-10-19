@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DepthClient, type DepthResult } from '../depth/client';
 import { keyLineArt, type Density } from '../design/key';
+import { flipDensity } from '../design/flip';
 import { Compositor, type BlendMode, type InkParams, type LayerInk } from '../render/compositor';
 import { buildDepthSurface, type Calibration, type DepthSurface } from '../surface/depthSurface';
 import { FlatSurface } from '../surface/types';
@@ -165,11 +166,21 @@ export function useTryOn() {
     setSelectedId(id);
   }, [photo, checkpoint]);
 
+  /** Locked tattoos can't be deleted one by one; "Delete images" still clears everything. */
   const removeLayer = useCallback((id: string) => {
+    if (layersRef.current.find((l) => l.id === id)?.locked) return;
     checkpoint();
     setLayers((ls) => ls.filter((l) => l.id !== id));
     setSelectedId((s) => (s === id ? null : s));
   }, [checkpoint]);
+
+  /** Mirrors the artwork itself, so the fit, hand corrections and GPU upload all just follow the new design. */
+  const flipLayer = useCallback((id: string, axis: 'h' | 'v') => {
+    const l = layersRef.current.find((x) => x.id === id);
+    if (!l || l.locked) return;
+    const design = flipDensity(l.design, axis);
+    updateLayer(id, { design, thumb: densityThumb(design) });
+  }, [updateLayer]);
 
   const moveLayer = useCallback((id: string, dir: 1 | -1) => {
     checkpoint();
@@ -540,7 +551,7 @@ export function useTryOn() {
     error, setError,
     photo, photoName, loadPhoto, depthState, hasDepth: !!baseSurface,
     layers, selected, selectedId, setSelectedId, fits,
-    addLayer, addFiles, updateLayer, removeLayer, moveLayer,
+    addLayer, addFiles, updateLayer, removeLayer, flipLayer, moveLayer,
     undo, redo, canUndo: hist.current.past.length > 0, canRedo: hist.current.future.length > 0,
     ink, setInk, mode, setMode, smoothSigma, setSmoothSigma,
     comparing, setComparing, showMesh, setShowMesh,

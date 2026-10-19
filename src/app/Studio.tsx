@@ -5,7 +5,7 @@ import { syntheticLimb } from '../ingest/syntheticLimb';
 import type { BlendMode, LayerInk } from '../render/compositor';
 import { useTryOn, type Layer, type TryOn } from '../studio/useTryOn';
 import {
-  ICompare, IDown, IDownload, IEye, IEyeOff, IFit, IImage, IInk, ILayers, ILock, IMove, IPaste, IPlus, IRedo, ITrash, IUndo, IUnlock, IUp, IUpload, Logo,
+  ICompare, IDown, IDownload, IEye, IEyeOff, IFit, IFlipH, IFlipV, IImage, IInk, ILayers, ILock, IMove, IPaste, IPlus, IRedo, ITrash, IUndo, IUnlock, IUp, IUpload, Logo,
 } from './icons';
 import { DesignSearch } from './DesignSearch';
 
@@ -60,7 +60,7 @@ export function Studio({ incoming, onConsumed }: { incoming: IncomingPhoto; onCo
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Keyboard: Space compares; Ctrl/Cmd+Z undoes, +Shift (or Y) redoes; Delete removes the selection.
+  // Keyboard: Space compares; Ctrl/Cmd+Z undoes, +Shift (or Y) redoes; Delete removes the selection (unless it's locked).
   const tRef = useRef(t);
   tRef.current = t;
   const rootRef = useRef<HTMLDivElement>(null);
@@ -245,13 +245,14 @@ export function Studio({ incoming, onConsumed }: { incoming: IncomingPhoto; onCo
                 <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{sel.name}</h2>
                 <span style={{ display: 'flex', gap: 4 }}>
                   <LockButton t={t} layer={sel} className="btn btn-ghost btn-icon lock-btn" />
-                  <button type="button" className="btn btn-ghost btn-icon" aria-label={`Delete ${sel.name}`} onClick={() => t.removeLayer(sel.id)}><ITrash /></button>
+                  <button type="button" className="btn btn-ghost btn-icon" aria-label={`Delete ${sel.name}`} title={sel.locked ? 'Unlock it to delete' : undefined}
+                    disabled={sel.locked} onClick={() => t.removeLayer(sel.id)}><ITrash /></button>
                 </span>
               </div>
 
               {sel.locked && (
                 <p className="locked-note" data-section="place">
-                  <ILock size={14} /> Locked in place. Unlock it to move, resize or reshape it.
+                  <ILock size={14} /> Locked in place. Unlock it to move, resize, flip, reshape or delete it.
                 </p>
               )}
 
@@ -261,6 +262,10 @@ export function Studio({ incoming, onConsumed }: { incoming: IncomingPhoto; onCo
                   onChange={(v) => t.updateLayer(sel.id, { width: v }, `size:${sel.id}`)} />
                 <Range label="Rotation" value={sel.rotation} min={-180} max={180} step={1} display={`${sel.rotation}°`}
                   onChange={(v) => t.updateLayer(sel.id, { rotation: v }, `rot:${sel.id}`)} />
+                <div className="flip-row" role="group" aria-label="Flip">
+                  <button type="button" className="btn" onClick={() => t.flipLayer(sel.id, 'h')}><IFlipH /> Flip horizontal</button>
+                  <button type="button" className="btn" onClick={() => t.flipLayer(sel.id, 'v')}><IFlipV /> Flip vertical</button>
+                </div>
               </section>}
 
               {!sel.locked && <section className="group" data-section="fit">
@@ -416,7 +421,8 @@ function LayerRow({ t, layer: l, isTop, isBottom, onPick }: { t: TryOn; layer: L
         <button type="button" aria-label={l.visible ? `Hide ${l.name}` : `Show ${l.name}`} onClick={() => t.updateLayer(l.id, { visible: !l.visible })}>
           {l.visible ? <IEye size={16} /> : <IEyeOff size={16} />}
         </button>
-        <button type="button" aria-label={`Delete ${l.name}`} title="Delete (Ctrl+Z brings it back)" onClick={() => t.removeLayer(l.id)}>
+        <button type="button" aria-label={`Delete ${l.name}`} title={l.locked ? 'Unlock it to delete' : 'Delete (Ctrl+Z brings it back)'}
+          disabled={l.locked} onClick={() => t.removeLayer(l.id)}>
           <ITrash size={16} />
         </button>
       </span>
