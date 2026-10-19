@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28" fill="none" stroke-width="2">
+  <!-- The Logo mark from src/app/icons.tsx, recoloured for light and dark browser tabs. -->
+  <style>
+    .ink { stroke: #1b1712; } .dot { fill: #1b1712; } .arc { stroke: #C2361B; }
+    @media (prefers-color-scheme: dark) { .ink { stroke: #f4f1ea; } .dot { fill: #f4f1ea; } .arc { stroke: #E0553A; } }
+  </style>
+  <circle class="ink" cx="14" cy="14" r="11" />
+  <path class="arc" d="M8 17c3-6 9-6 12 0" />
+  <circle class="dot" cx="14" cy="10" r="1.6" />
+</svg>
